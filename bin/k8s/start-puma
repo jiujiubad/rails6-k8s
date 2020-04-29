@@ -1,0 +1,11 @@
+#! /bin/sh
+
+# 等待
+./bin/k8s/wait-for $POSTGRES_HOST 5432
+./bin/k8s/wait-for $REDIS_HOST 6379
+
+# 尝试执行 migrate
+bundle exec rails db:try_migrate
+
+# 开启 puma
+mkdir -p ./tmp/pids && bundle exec puma -C config/puma.rb

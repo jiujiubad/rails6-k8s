@@ -37,9 +37,9 @@ yarn-debug.log*
 /config/application.yml
 /.env
 # 1）.gitignore 专用
-/kube/env/*
-!/kube/env/*.example
-!/kube/env/configmap.yaml
+# /kube/env/*
+# !/kube/env/*.example
+# !/kube/env/configmap.yaml
 # 2）.dockerignore 专用
-# /.git
-# /kube
+/.git
+/kube

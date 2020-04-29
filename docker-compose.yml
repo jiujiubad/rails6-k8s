@@ -1,0 +1,48 @@
+# ledermann/docker-rails/docker-compose.yml，https://github.com/ledermann/docker-rails/blob/develop/docker-compose.yml
+
+version: "3.4"
+services:
+  rails6-puma:
+    container_name: rails6-puma
+    image: jiujiubad/rails6-puma:lastest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+    depends_on:
+      - rails6-pg
+      - rails6-redis
+    volumes:
+      - ./tmp/localFile:/app/public/localFile
+    command:  ./bin/k8s/prepare-db-and-start-puma
+
+  rails6-sidekiq:
+    container_name: rails6-sidekiq
+    image: jiujiubad/rails6-puma:lastest
+    env_file:
+      - .env
+    depends_on:
+      - rails6-puma
+    command: ./bin/k8s/start-sidekiq
+
+  rails6-pg:
+    container_name: rails6-pg
+    image: postgres:12.2-alpine
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+
+  rails6-redis:
+    container_name: rails6-redis
+    image: redis:5-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - ./tmp/redis:/data
+    command: redis-server --appendonly yes --requirepass $REDIS_PASSWORD  #断开自动连接 appendonly，requirepass 设置密码

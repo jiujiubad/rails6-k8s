@@ -1,0 +1,8 @@
+#! /bin/sh
+
+# 等待
+./bin/k8s/wait-for $POSTGRES_HOST 5432
+./bin/k8s/wait-for $REDIS_HOST 6379
+
+# 开启 sidekiq（其中 :-8 表示默认多少秒）
+bundle exec sidekiq -C config/sidekiq.yml -t ${SIDEKIQ_TIMEOUT:-8}

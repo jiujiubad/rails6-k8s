@@ -1,0 +1,14 @@
+#!/bin/sh
+
+HOST=$1
+PORT=$2
+
+# nc 是一个网络工具（-z 使用输入/输出模式，-v 显示命令执行过程，-w 超时秒数）
+until nc -z -v -w10 $HOST $PORT
+do
+  echo "等待 $HOST ..."
+  if [[ $? = 0 ]]; then
+    break;
+  fi
+  sleep 1
+done

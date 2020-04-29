@@ -1,0 +1,10 @@
+#! /bin/sh
+
+# db:prepare
+./bin/k8s/prepare-db
+
+# 等待
+./bin/k8s/wait-for $REDIS_HOST 6379
+
+# 开启 puma
+mkdir -p ./tmp/pids && bundle exec puma -C config/puma.rb
