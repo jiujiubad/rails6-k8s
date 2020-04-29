@@ -52,3 +52,13 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+gem 'pg'
+gem "figaro"
+
+gem 'redis'
+gem 'sidekiq'
+gem 'sidekiq-cron'
+
+gem 'okcomputer'  #健康检查
+gem 'lograge'  #管理Rails日志

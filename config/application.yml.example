@@ -1,0 +1,18 @@
+# Rails
+#允许使用/public的文件
+RAILS_SERVE_STATIC_FILES: true
+#显示rails s详细日志
+RAILS_LOG_TO_STDOUT: true 
+
+# Postgresql
+POSTGRES_USER: yourName
+POSTGRES_PASSWORD: yourPword
+
+# Redis
+REDIS_URL: redis://:yourPword@yourRedisHost:6379/
+
+# Sidekiq
+SIDEKIQ_TIMEOUT: 60
+SIDEKIQ_CONCURRENCY: "5"
+SIDEKIQ_USERNAME: aaron
+SIDEKIQ_PASSWORD: foobar

@@ -1,0 +1,8 @@
+---
+concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY") { 20 }.to_i %>
+:pidfile: ./tmp/pids/sidekiq.pid
+:logfile: ./log/sidekiq.log
+:queues:
+  - [alone,   <%= ENV.fetch("SIDEKIQ_QUEUES_ALONE") { 1 }.to_i %>]
+  - [default, <%= ENV.fetch("SIDEKIQ_QUEUES_DEFAULT") { 5 }.to_i %>]
+  - [normal,  <%= ENV.fetch("SIDEKIQ_QUEUES_NORMAL") { 10 }.to_i %>]
