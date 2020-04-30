@@ -1,24 +1,22 @@
-# README
+# Deploying a Rails6 App to a Kubernetes Cluster
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+使用 docker-compose 和 k8s 开启常用服务：
 
-Things you may want to cover:
+- Rails 6，基于 ruby:2.7-alpine
+- Postgresql 12.2，也支持 mysql、mariadb 数据库
+- Redis 5
+- Sidekiq 6
 
-* Ruby version
+## 开始
 
-* System dependencies
+包括五个部分
 
-* Configuration
+1）rails 项目：kube/文档/1-rails-demo.md
 
-* Database creation
+2）使用 docker-compose 开启所有服务
 
-* Database initialization
+3）使用 k8s 开启所有服务
 
-* How to run the test suite
+4）部署 k8s dashboard 仪表盘
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+5）kubectl 命令行代替 dashboard

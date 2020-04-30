@@ -14,17 +14,21 @@ endif
 
 #<<< 通用大方法 >>>
 
-# 第一次执行，build和push标签为1.0.0的镜像，并执行apply
-first:
+# 开启 k8s 服务：make run tag=1.0.1
+# 注意：每执行一次要升级一个版本号
+run:
+	$(MAKE) delete; echo ""
 	$(MAKE) namespace; echo ""
-	$(MAKE) docker-build-force; echo ""
+	$(MAKE) docker-build tag=$(tag); echo ""
 	$(MAKE) docker-push tag=$(tag); echo ""
-	$(MAKE) apply; echo ""
+	$(MAKE) apply; sleep 3; echo "";
+	$(MAKE) all; echo ""
 	$(MAKE) pod
 
-# 更新项目代码后重新build、push，并修改pod的镜像为新镜像：make update tag=1.0.1
+# 更新镜像代码并替换 pod 里的旧镜像：make update tag=1.0.1
+# 注意：每执行一次要升级一个版本号
 update:
-	$(MAKE) docker-build-if-not-exists tag=$(tag); echo ""
+	$(MAKE) docker-build tag=$(tag); echo ""
 	$(MAKE) docker-push tag=$(tag); echo ""
 	$(MAKE) set-image tag=$(tag); echo ""
 	$(MAKE) all; echo ""
@@ -46,16 +50,6 @@ remove:
 	kubectl delete namespaces $(NAMESPACE) --ignore-not-found; echo ""
 	$(MAKE) all
 
-# 本地调试用
-test:
-	$(MAKE) delete; echo ""
-	$(MAKE) namespace; echo ""
-	# $(MAKE) docker-build-force; echo ""
-	# $(MAKE) docker-push; echo ""
-	docker build -t jiujiubad/rails6-puma:1.0.7 ../
-	docker push jiujiubad/rails6-puma:1.0.7
-	$(MAKE) apply; echo ""
-
 #<<< 通用小方法 >>>
 
 namespace:
@@ -63,17 +57,11 @@ namespace:
 		kubectl create namespace $(NAMESPACE); \
 	fi
 
-# 为确保代码能被更新到镜像中，每次 tag 都要使用不同的版本号
-docker-build-if-not-exists:
+# 本地不存在的镜像版本，才会执行 build
+docker-build:
 	if [ "$$(docker image ls -q $(IMAGE_NAME):$(tag))" == "" ]; then \
-		docker build -t $(IMAGE_NAME):$(tag) ../; else \
-		echo ""; echo "本地存在同名镜像，如需build请换用其他tag"; \
+		docker build -t $(IMAGE_NAME):$(tag) ../; \
 	fi; \
-	docker history $(IMAGE_NAME):$(tag) 2>&1 | head -n 6
-
-# 使用 --no-cache，确保 build 是完全重建，即确保代码会被更新到镜像中
-docker-build-force:
-	docker build -t $(IMAGE_NAME):$(tag) ../
 	docker history $(IMAGE_NAME):$(tag) 2>&1 | head -n 6
 
 docker-push:
@@ -103,9 +91,9 @@ set-image:
 http:
 	$(MAKE) http-delete; echo ""
 	kubectl apply  -f ingresses/ing_controller.yaml; echo ""
-	for i in {1..5}; do \
+	for i in {1..10}; do \
 		kubectl -n $(NAMESPACE) apply  -f ingresses/ing_http.yaml && break || \
-		echo "重试${i}/5" && sleep 2; \
+		echo "重试$(i)/10" && sleep 2; \
 	done
 
 http-delete:
