@@ -1,0 +1,45 @@
+---
+  apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: rails6-pv-1
+    labels:
+      type: local
+  spec:
+    storageClassName: standard
+    capacity:
+      storage: 5Gi  # rails uploads
+    accessModes:
+      - ReadWriteOnce
+    hostPath:
+      path: /tmp/rails6-data/pv-1
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rails6-pv-2
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi  # postgresql
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /tmp/rails6-data/pv-2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rails6-pv-3
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 3Gi  # redis 
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /tmp/rails6-data/pv-3

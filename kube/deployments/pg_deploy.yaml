@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails6-pg
+  labels:
+    app: rails6
+    component: pg
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rails6
+      component: pg
+  strategy:
+    type: Recreate
+
+  template:
+    metadata:
+      labels:
+        app: rails6
+        component: pg
+    spec:
+      restartPolicy: Always
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: rails6-pg
+
+      initContainers:
+        - name: "remove-lost-found"
+          image: "busybox:1.31"
+          command: 
+            - rm
+            - -rf
+            - /var/lib/postgresql/data/lost+found
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          
+      containers:
+        - name: pg
+          image: postgres:12.2-alpine
+          ports:
+            - containerPort: 5432
+
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          envFrom:
+            - configMapRef:
+                name: rails6-env
+            - secretRef:
+                name: rails6-env
+
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: projectType
+                operator: In
+                values:
+                - web
+              - key: projectName
+                operator: In
+                values:
+                - rails6
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rails6
+              - key: component
+                operator: In
+                values:
+                - pg
+            topologyKey: "kubernetes.io/hostname"

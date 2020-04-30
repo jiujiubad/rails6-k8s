@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rails6-env
+data:
+  RAILS_SERVE_STATIC_FILES: 'true'  #允许使用/public文件
+  RAILS_LOG_TO_STDOUT: 'true'       #显示rails server详细日志
+  RAILS_ENV: 'production'
+  POSTGRES_DB: 'rails6_k8s_production'  #rails c查看数据库ActiveRecord::Base.connection.current_database
+  POSTGRES_HOST: 'rails6-pg'
+  REDIS_HOST: 'rails6-redis'

@@ -1,0 +1,69 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails6-puma
+  labels:
+    app: rails6
+    component: puma
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rails6
+      component: puma
+  template:
+    metadata:
+      labels:
+        app: rails6
+        component: puma
+    spec:
+      restartPolicy: Always
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: rails6-uploads
+      containers:
+        - name: puma
+          image: jiujiubad/rails6-puma:1.0.0
+          # imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          command:
+            - ./bin/k8s/start-puma
+          livenessProbe:
+            httpGet:
+              path: /okcomputer
+              port: 3000
+            initialDelaySeconds: 30  #pod 启动多久后进行检查
+            timeoutSeconds: 5        #检测超时时间，默认 1
+          readinessProbe:
+            httpGet:
+              path: /okcomputer
+              port: 3000
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          envFrom:
+            - configMapRef:
+                name: rails6-env
+            - secretRef:
+                name: rails6-env
+          volumeMounts:
+            - name: data
+              mountPath: /app/public/uploads
+      imagePullSecrets:
+        - name: rails6-docker-hub
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rails6
+              - key: component
+                operator: In
+                values:
+                - pg
+            topologyKey: "kubernetes.io/hostname"

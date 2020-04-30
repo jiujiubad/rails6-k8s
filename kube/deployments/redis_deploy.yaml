@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails6-redis
+  labels:
+    app: rails6
+    component: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rails6
+      component: redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: rails6
+        component: redis
+    spec:
+      restartPolicy: Always
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: rails6-redis
+      containers:
+        - name: redis
+          image: redis:5-alpine
+          ports:
+            - containerPort: 6379
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          command:
+            - redis-server
+            - --appendonly
+            - "yes"
+            - --requirepass
+            - $(REDIS_PASSWORD)
+          envFrom:
+            - configMapRef:
+                name: rails6-env
+            - secretRef:
+                name: rails6-env
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rails6
+              - key: component
+                operator: In
+                values:
+                - pg
+            topologyKey: "kubernetes.io/hostname"
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rails6
+              - key: component
+                operator: In
+                values:
+                - redis
+            topologyKey: "kubernetes.io/hostname"

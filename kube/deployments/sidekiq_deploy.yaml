@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails6-sidekiq
+  labels:
+    app: rails6
+    component: sidekiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rails6
+      component: sidekiq
+  template:
+    metadata:
+      labels:
+        app: rails6
+        component: sidekiq
+    spec:
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 65
+      containers:
+        - name: sidekiq
+          image: jiujiubad/rails6-puma:1.0.0
+          # imagePullPolicy: Always
+          command:
+            - ./bin/k8s/start-sidekiq
+          livenessProbe:
+            exec:
+              command:
+                - ./bin/k8s/health-check-sidekiq
+            initialDelaySeconds: 30
+          envFrom:
+            - configMapRef:
+                name: rails6-env
+            - secretRef:
+                name: rails6-env
+      imagePullSecrets:
+      - name: rails6-docker-hub
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rails6
+              - key: component
+                operator: In
+                values:
+                - redis
+            topologyKey: "kubernetes.io/hostname"

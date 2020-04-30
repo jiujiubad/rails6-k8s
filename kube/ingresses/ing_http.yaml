@@ -1,0 +1,25 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: rails6-http
+  # annotations:
+  #   nginx.ingress.kubernetes.io/rewrite-target: /
+  #   kubernetes.io/ingress.class: "nginx"
+  #   nginx/client_max_body_size: 100m
+  #   nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  #   ingress.kubernetes.io/proxy-body-size: 50m
+    # kubernetes.io/ingress.allow-http: "true"
+spec:
+  # tls:
+  # - hosts:
+  #   - xiaochu.gq
+  #   secretName: rails6-tls
+  rules:
+  - host: xiaochu.gq
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: rails6-puma
+          servicePort: 3000

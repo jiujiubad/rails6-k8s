@@ -1,0 +1,44 @@
+# 处理Pod和容器的失败：https://kuboard.cn/learning/k8s-intermediate/workload/wl-job/failure.html
+# 即使您指定 .spec.parallelism = 1、 .spec.completions = 1 以及 .spec.template.spec.restartPolicy = "Never"，同一个应用程序仍然可能被启动多次
+# backoffLimit 失败重试次数（默认6），parallelism 并发执行个数（默认1），completions 期望完成个数（默认1）
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rails6-job-prepare-db
+spec:
+  backoffLimit: 4  #失败重试次数，默认6
+  template:
+    metadata:
+      labels:
+        app: rails6
+        component: job-prepare-db
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: job-prepare-db
+          image: jiujiubad/rails6-puma:1.0.0
+          # imagePullPolicy: Always
+          command:
+            - ./bin/k8s/prepare-db
+          envFrom:
+            - configMapRef:
+                name: rails6-env
+            - secretRef:
+                name: rails6-env
+      imagePullSecrets:
+      - name: rails6-docker-hub  
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - rails6
+              - key: component
+                operator: In
+                values:
+                - pg
+            topologyKey: "kubernetes.io/hostname"
