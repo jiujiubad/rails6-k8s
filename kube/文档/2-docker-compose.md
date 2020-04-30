@@ -32,7 +32,18 @@
 
 4）Dockerfile 修改基础镜像版本号
 
-如需定制基础镜像，修改 Dockerfile.base 的 ruby 镜像版本和 LABEL 后创建和推送镜像，最后修改 Dockerfile FROM 自己的镜像
+如需定制基础镜像如 ruby 2.6，修改 Dockerfile.base 的 ruby 镜像版本如 `FROM ruby:2.6-alpine` 和 LABEL 后创建和推送镜像
+
+```
+docker build -t jiujiubad/rails-base:2.6 . -f Dockerfile.base
+docker push jiujiubad/rails-base:2.6
+```
+
+最后修改 Dockerfile FROM 自己的镜像如
+
+```
+FROM jiujiubad/rails-base:2.6
+```
 
 5）docker-compose.yml 修改
 

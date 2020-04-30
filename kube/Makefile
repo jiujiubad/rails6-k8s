@@ -14,9 +14,9 @@ endif
 
 #<<< 通用大方法 >>>
 
-# 开启 k8s 服务：make run tag=1.0.1
+# 开启 k8s 服务：make up tag=1.0.1
 # 注意：每执行一次要升级一个版本号
-run:
+up:
 	$(MAKE) delete; echo ""
 	$(MAKE) namespace; echo ""
 	$(MAKE) docker-build tag=$(tag); echo ""
@@ -35,7 +35,7 @@ update:
 	$(MAKE) pod
 
 # 清空命名空间内容
-clean: 
+down: 
 	$(MAKE) delete; echo ""
 	$(MAKE) http-delete; echo ""
 	$(MAKE) https-delete; echo ""
